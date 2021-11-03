@@ -4,29 +4,35 @@ const User=require('../models/User');
 exports.register=async(req,res)=>{
     try {
         const {username,email}=req.body;
-        let userID="";
-        const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
-        while(true){
-            for(let i=0;i<10;i++){
-                userID+=chars.charAt(Math.floor(Math.random()*chars.length));
-            }
-            const user=await User.findOne({userID});
-            if(!user) break;
-            userID="";
+        const user=await User.findOne({email});
+        if(user){
+            res.status(200).send(user.userID);
         }
-        const user=new User({username,email,userID});
-        await user.save();
-        res.status(201).json({message:"User created"});
+        else{
+            let userID="";
+            const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            while(true){
+                for(let i=0;i<10;i++){
+                    userID+=chars.charAt(Math.floor(Math.random()*chars.length));
+                }
+                const exists=await User.findOne({userID});
+                if(!exists) break;
+                userID="";
+            }
+            const newUser=new User({username,email,userID});
+            await newUser.save();
+            res.status(201).send(userID);
+        }
     } catch (error) {
         console.log(error);
         res.status(500).json({error:"Something went wrong!"});
     }
 }
 
-//Login
-exports.login=async(req,res)=>{
+//Get details
+exports.getDetails=async(req,res)=>{
     try {
-        const {userID}=req.body;
+        const {userID}=req.params;
         const user=await User.findOne({userID});
         if(!user) return res.status(400).json({error:"User not found"});
         else res.status(200).send(user);
