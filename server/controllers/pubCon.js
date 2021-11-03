@@ -29,7 +29,7 @@ exports.register=async(req,res)=>{
     }
 }
 
-//Get details
+//Get Details
 exports.getDetails=async(req,res)=>{
     try {
         const {userID}=req.params;
